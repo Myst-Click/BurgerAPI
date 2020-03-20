@@ -1,0 +1,16 @@
+{
+  "name": "burger_api",
+  "version": "1.0.0",
+  "description": "BurgerAPI",
+  "author": "First Last <first.last@example.com>",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.16.1",
+    "mongodb": "^2.2.33",
+    "mongoose": "^5.9.0",
+    "morgan": "^1.9.1"
+  }
+}

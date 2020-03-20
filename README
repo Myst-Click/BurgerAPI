@@ -1,0 +1,12 @@
+
+	
+Contribuer : 
+
+	- se positionner à la racine (ou se trouve le ficher docker-compose.yml)
+	- entrer la commande "docker pull mongo" si vous ne possédez pas l'image mongo
+	- entrer la commande "docker pull node:7" si vous ne possédez pas l'image node
+	- entrer la commande "docker-compose build"
+	- entrer la commande "docker-compose up"
+	
+	(ne pas oublier d'installer les packages à l'aide de "npm install")
+
