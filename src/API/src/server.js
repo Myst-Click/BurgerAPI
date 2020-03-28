@@ -1,11 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
-const mongodb = require('mongodb');
 const mongoose = require('mongoose');
 const RouteBuilder = require('./routes');
 const config = require('./db');
-const PORT = 4000;
-const client = mongodb.MongoClient;
+const PORT = process.env.PORT || 4000;;
 
 mongoose.connect(config.DB,{
     useNewUrlParser: true,
