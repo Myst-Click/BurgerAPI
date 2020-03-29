@@ -48,10 +48,26 @@ class UserController{
     }
     async userFromToken(token) {
         return Session.findOne({
-            where: {
                 token
-            }
         });
+    }
+
+    async logout(id){
+        return await Session.deleteMany(
+            {
+                User:{
+                    _id : id
+                }
+            },
+            function(err, result) {
+              if (err) {
+                return err;
+              
+              } else {
+                return result;
+              }
+            }
+          );
     }
    
     async getById(id){
