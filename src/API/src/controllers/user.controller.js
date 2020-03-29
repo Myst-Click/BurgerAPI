@@ -48,9 +48,7 @@ class UserController{
     }
     async userFromToken(token) {
         return Session.findOne({
-            where: {
-                token
-            }
+            token : token
         });
     }
    

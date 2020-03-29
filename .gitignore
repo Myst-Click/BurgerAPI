@@ -1,4 +1,4 @@
-src/API_NodeJs/src/node_modules
+src/API_NodeJs/src/node_modules/
 src/ToDoListApp/bin
 src/ToDoListApp/build
 src/ToDoListApp/out
