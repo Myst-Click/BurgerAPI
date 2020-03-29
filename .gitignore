@@ -4,3 +4,4 @@ src/ToDoListApp/build
 src/ToDoListApp/out
 src/ToDoListApp/.project
 src/ToDoListApp/.idea
+*/node_modules/*

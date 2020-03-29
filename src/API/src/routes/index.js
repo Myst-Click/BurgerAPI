@@ -2,7 +2,7 @@
 
 class RouterBuilder {
     build(app) {  
-        app.use('',require(''));  
+        app.use('/auth', require('./auth.route'));  
     }
 }
 
