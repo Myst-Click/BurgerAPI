@@ -1,6 +1,7 @@
 'use strict'
 const Attraction = require('../models/user')
 const Parcours = require('../models/user')
+const Produits = require('../models/produits');
 const CategorieUser = require('../models/categorie/categorieUser')
 class verifyValueController{
 
@@ -31,6 +32,14 @@ class verifyValueController{
         }
         
         return result;
+    }
+
+    async isProduitInStock(idProduit){
+        var produit = await Produits.findOne({
+            _id : idProduit
+        })
+        if(produit.stock > 0) return true;
+        return false;
     }
 }
 module.exports = new verifyValueController()

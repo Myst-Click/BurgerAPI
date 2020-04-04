@@ -5,16 +5,16 @@ var Schema = mongoose.Schema;
 // set up a mongoose model and pass it using module.exports
 module.exports = mongoose.model('Commande', new Schema({
     menusId:{
-        id : Number,
+        id : String,
         count : Number
     },
     produitsId:{
-        id : Number,
+        id : String,
         count : Number
     },
     idUser:{ 
-        type : Schema.Types.ObjectId,
-        required : true,
+        type : String,
+        required : false,
     },
     isDone:{
         type : Boolean,
