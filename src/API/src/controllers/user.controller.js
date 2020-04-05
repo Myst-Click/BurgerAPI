@@ -55,17 +55,7 @@ class UserController{
     async logout(id){
         return await Session.deleteMany(
             {
-                User:{
-                    _id : id
-                }
-            },
-            function(err, result) {
-              if (err) {
-                return err;
-              
-              } else {
-                return result;
-              }
+                "User._id" : id 
             }
           );
     }

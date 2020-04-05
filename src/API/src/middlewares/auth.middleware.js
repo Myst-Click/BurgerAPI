@@ -21,7 +21,7 @@ class AuthMiddleware {
                 res.status(403).end();
                 return;
             }   
-            req.user = session.token;
+            req.user = session.User;
             next();
         };
     }

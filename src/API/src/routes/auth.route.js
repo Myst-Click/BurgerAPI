@@ -63,6 +63,11 @@ router.post('/login',async(req,res)=>{
 router.delete('/logout',AuthMiddleWare.auth(),async(req,res)=>{
 
     var result = await UserController.logout(req.user._id);
-    res.send(result);
+    if(result){
+        res.status(200).json(result);
+    }
+    else{
+        res.status(400).json(result);
+    }
 })
 module.exports = router;
