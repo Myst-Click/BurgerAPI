@@ -17,6 +17,20 @@ router.get('/',AuthMiddleWare.auth(),async(req,res)=>{
         commandes : commandes
     }) 
 })
+// Get Working Commandes
+router.get('/inprogress',AuthMiddleWare.auth(),async(req,res)=>{
+    const commandes = CommandeController.getCommandesInProgress(req.user._id)
+    res.status(200).json({
+        commandes : commandes
+    }) 
+})
+// Get Done Commandes
+router.get('/done',AuthMiddleWare.auth(),async(req,res)=>{
+    const commandes = CommandeController.getCommandesDone(req.user._id)
+    res.status(200).json({
+        commandes : commandes
+    }) 
+})
 router.get('/menus',async(req,res)=>{
     const menus = await CommandeController.getMenus();
     var menusInStock = [];
