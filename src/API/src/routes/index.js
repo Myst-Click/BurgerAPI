@@ -3,6 +3,7 @@
 class RouterBuilder {
     build(app) {  
         app.use('/auth', require('./auth.route'));  
+        app.use('/commandes',require('./commande.route'));
     }
 }
 
