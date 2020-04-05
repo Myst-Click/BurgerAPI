@@ -12,8 +12,9 @@ module.exports = mongoose.model('Menu', new Schema({
         type : String,
         required : true
     },
-    produitsId:{ 
-        type : [String]
+    produitsId:{
+        type : Map,
+        of : Number
     },
     prix:{
         type : Number,

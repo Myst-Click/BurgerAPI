@@ -34,11 +34,11 @@ class verifyValueController{
         return result;
     }
 
-    async isProduitInStock(idProduit){
+    async isProduitInStock(idProduit,count){
         var produit = await Produits.findOne({
             _id : idProduit
         })
-        if(produit.stock > 0) return true;
+        if(produit.stock >= count) return true;
         return false;
     }
 }

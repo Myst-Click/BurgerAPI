@@ -13,13 +13,17 @@ class CommandeController{
         this.panier.isDone = false;
     }
 
-    async addProduitToPanier(produit){
-        if(produit in this.panier.produitsId){
-            this.panier.produitsId[produit] +=1;
+    async addProduitToPanier(produitID){
+        var produit = await this.getProduit(produitID);
+        produit.stock -= 1;
+        produit.save(function(err){
+            if(err) throw err;
+        })
+        if(produitID in this.panier.produitsId){
+            this.panier.produitsId[produitID] +=1;
         }
         else{
-            console.log("not pass")
-            this.panier.produitsId[produit] = 1;
+            this.panier.produitsId[produitID] = 1;
         } 
     }
     async addMenutoPanier(menu){
@@ -28,22 +32,38 @@ class CommandeController{
         }
         else this.panier.menusId[menu] = 1;
     }
+    async addProduitToStock(produitId,count){
+        console.log(" produit stock ",produitId,count)
+        var produit = await this.getProduit(produitId)
+        produit.stock += count;
+        produit.save(function(err){
+            if(err) throw err;
+        })
+    }
     async delProduitToPanier(produit, count){
         if(produit in this.panier.produitsId){
             if(count >= this.panier.produitsId[produit])
             {
+                this.addProduitToStock(produit,this.panier.produitsId[produit])
                 delete this.panier.produitsId[produit]
             }
-            else this.panier.produitsId[produit] -=count;
+            else {
+                this.addProduitToStock(produit,count)
+                this.panier.produitsId[produit] -=count;
+            }
         }
     }
-    async delMenuToPanier(menu, count){
-        if(menu in this.panier.menusId){
-            if(count >= this.panier.menusId[menu])
-            {
-                delete this.panier.menusId[menu]
+    async delMenuToPanier(menuId, count){
+        if(menuId in this.panier.menusId){
+            const menu = await this.getMenu(menuId);
+            for (const [produitId, stock] of menu.produitsId) {
+                this.addProduitToStock(produitId,stock)
             }
-            else this.panier.menusId[menu] -=count;
+            if(count >= this.panier.menusId[menuId])
+            {
+                delete this.panier.menusId[menuId]
+            }
+            else this.panier.menusId[menuId] -=count;
         }
     }
     async getCommandes(id){
