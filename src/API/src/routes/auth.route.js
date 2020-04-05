@@ -2,8 +2,9 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 var express = require('express');
-const CategorieUser = require('../models/categorie/categorieUser');
+const AuthMiddleWare = require('../middlewares/auth.middleware')
 const User = require('../models/user')
+const Session = require('../models/session');
 const UserController = require('../controllers').UserController;
 const VerifyValueController = require('../controllers').VerifyValueController;
 var bodyParser = require('body-parser');
@@ -28,7 +29,6 @@ router.post('/signin',async(req,res)=>{
         if(result) res.json({
             success : false,
             message : "Email déja utilisé",
-            user : result
             });
         else{
             const cryptedPassword = bcrypt.hashSync(req.body.password,5);
@@ -59,5 +59,10 @@ router.post('/login',async(req,res)=>{
             message : userSession
             });
     }
+})
+router.delete('/logout',AuthMiddleWare.auth(),async(req,res)=>{
+
+    var result = await UserController.logout(req.user._id);
+    res.send(result);
 })
 module.exports = router;
