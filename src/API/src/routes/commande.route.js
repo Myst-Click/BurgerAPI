@@ -1,5 +1,6 @@
 'use strict'
 const AuthMiddleWare = require('../middlewares/auth.middleware');
+const PanierMiddleWare = require('../middlewares/panier.middleware');
 const CommandeController = require('../controllers').CommandeController;
 const VerifyValueController = require('../controllers').VerifyValueController;
 var express = require('express');
@@ -63,18 +64,21 @@ router.get('/produits',async(req,res)=>{
 router.get('/promotions',async(req,res)=>{
 
 })
-router.get('/panier',async(req,res)=>{
+router.get('/panier',PanierMiddleWare.logPanier(CommandeController.panier),async(req,res)=>{
+    console.log('pass',req.panierId)
     res.status(200).json({
-        panier : CommandeController.panier
+        panier : CommandeController.panier[req.panierId],
+        idPanier : req.panierId
     })
 })
 //Ajouter Panier
-router.post('/produits',async(req,res)=>{
+router.post('/produits',PanierMiddleWare.logPanier(CommandeController.panier),async(req,res)=>{
     const produit = await CommandeController.getProduit(req.body.id);
     if(produit && produit.stock > 0){
-        await CommandeController.addProduitToPanier(req.body.id);
+        await CommandeController.addProduitToPanier(req.body.id,req.panierId);
         res.status(200).json({
-            panier : CommandeController.panier
+            panier : CommandeController.panier[req.panierId],
+            idPanier : req.panierId
         })
     }
     else{
@@ -83,13 +87,14 @@ router.post('/produits',async(req,res)=>{
         })
     }
 })
-router.delete('/produits',async(req,res)=>{
-    await CommandeController.delProduitToPanier(req.body.id,req.body.count);
+router.delete('/produits',PanierMiddleWare.logPanier(CommandeController.panier),async(req,res)=>{
+    await CommandeController.delProduitToPanier(req.body.id,req.body.count,req.panierId);
     res.status(200).json({
-        panier : CommandeController.panier
+        panier : CommandeController.panier[req.panierId],
+        idPanier : req.panierId
     })
 })
-router.post('/menus',async(req,res)=>{
+router.post('/menus',PanierMiddleWare.logPanier(CommandeController.panier),async(req,res)=>{
     const menu = await CommandeController.getMenu(req.body.id);
     if(menu){
         let isInStock = true;
@@ -110,9 +115,10 @@ router.post('/menus',async(req,res)=>{
                 })
             }
     
-            await CommandeController.addMenutoPanier(req.body.id);
+            await CommandeController.addMenutoPanier(req.body.id,req.panierId);
             res.status(200).json({
-                panier : CommandeController.panier
+                panier : CommandeController.panier[req.panierId],
+                idPanier : req.panierId
             })
         }
         
@@ -123,10 +129,11 @@ router.post('/menus',async(req,res)=>{
         })
     }
 })
-router.delete('/menus',async(req,res)=>{
-    await CommandeController.delMenuToPanier(req.body.id,req.body.count);
+router.delete('/menus',PanierMiddleWare.logPanier(CommandeController.panier),async(req,res)=>{
+    await CommandeController.delMenuToPanier(req.body.id,req.body.count,req.panierId);
     res.status(200).json({
-        panier : CommandeController.panier
+        panier : CommandeController.panier[req.panierId],
+        idPanier : req.panierId
     })
 })
 

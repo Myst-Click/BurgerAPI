@@ -6,31 +6,37 @@ const VerifyValueController = require('../controllers/verifyValue.controller')
 
 class CommandeController{
     constructor(){
-        this.panier = new Object();
-        this.panier.menusId = new Map();
-        this.panier.produitsId = new Map();
-        this.panier.user = String;
-        this.panier.isDone = false;
+        this.id = 0;
+        this.panier = new Map();
     }
-
-    async addProduitToPanier(produitID){
+    async createPanier(){
+        this.panier[this.id] = new Object();
+        this.panier[this.id].menusId = new Map();
+        this.panier[this.id].produitsId = new Map();
+        this.panier[this.id].user = String;
+        this.panier[this.id].isDone = false;
+        
+        this.id ++;
+        return (this.id - 1);
+    }
+    async addProduitToPanier(produitID,panierId){
         var produit = await this.getProduit(produitID);
         produit.stock -= 1;
         produit.save(function(err){
             if(err) throw err;
         })
-        if(produitID in this.panier.produitsId){
-            this.panier.produitsId[produitID] +=1;
+        if(produitID in this.panier[panierId].produitsId){
+            this.panier[panierId].produitsId[produitID] +=1;
         }
         else{
-            this.panier.produitsId[produitID] = 1;
+            this.panier[panierId].produitsId[produitID] = 1;
         } 
     }
-    async addMenutoPanier(menu){
-        if(menu in this.panier.menusId){
-            this.panier.menusId[menu] +=1;
+    async addMenutoPanier(menu,panierId){
+        if(menu in this.panier[panierId].menusId){
+            this.panier[panierId].menusId[menu] +=1;
         }
-        else this.panier.menusId[menu] = 1;
+        else this.panier[panierId].menusId[menu] = 1;
     }
     async addProduitToStock(produitId,count){
         console.log(" produit stock ",produitId,count)
@@ -40,30 +46,30 @@ class CommandeController{
             if(err) throw err;
         })
     }
-    async delProduitToPanier(produit, count){
-        if(produit in this.panier.produitsId){
-            if(count >= this.panier.produitsId[produit])
+    async delProduitToPanier(produitId, count,panierId){
+        if(produitId in this.panier[panierId].produitsId){
+            if(count >= this.panier[panierId].produitsId[produitId])
             {
-                this.addProduitToStock(produit,this.panier.produitsId[produit])
-                delete this.panier.produitsId[produit]
+                this.addProduitToStock(produitId,this.panier[panierId].produitsId[produitId])
+                delete this.panier[panierId].produitsId[produitId]
             }
             else {
-                this.addProduitToStock(produit,count)
-                this.panier.produitsId[produit] -=count;
+                this.addProduitToStock(produitId,count)
+                this.panier[panierId].produitsId[produitId] -=count;
             }
         }
     }
-    async delMenuToPanier(menuId, count){
-        if(menuId in this.panier.menusId){
+    async delMenuToPanier(menuId, count,panierId){
+        if(menuId in this.panier[panierId].menusId){
             const menu = await this.getMenu(menuId);
             for (const [produitId, stock] of menu.produitsId) {
                 this.addProduitToStock(produitId,stock)
             }
-            if(count >= this.panier.menusId[menuId])
+            if(count >= this.panier[panierId].menusId[menuId])
             {
-                delete this.panier.menusId[menuId]
+                delete this.panier[panierId].menusId[menuId]
             }
-            else this.panier.menusId[menuId] -=count;
+            else this.panier[panierId].menusId[menuId] -=count;
         }
     }
     async getCommandes(id){
