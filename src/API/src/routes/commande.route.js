@@ -1,5 +1,6 @@
 'use strict'
 const AuthMiddleWare = require('../middlewares/auth.middleware');
+const PanierMiddleWare = require('../middlewares/panier.middleware');
 const CommandeController = require('../controllers').CommandeController;
 const VerifyValueController = require('../controllers').VerifyValueController;
 var express = require('express');
@@ -33,20 +34,26 @@ router.get('/done',AuthMiddleWare.auth(),async(req,res)=>{
 })
 router.get('/menus',async(req,res)=>{
     const menus = await CommandeController.getMenus();
-    var menusInStock = [];
-    menus.forEach(element => {
+    let menusInStock = [];
+    let menuProcessed = 0
+    menus.forEach(async(menu) => {
+        menuProcessed ++;
         let isInStock = true;
-        element.produitsId.forEach(id=>{
-            if(!VerifyValueController.isProduitInStock(id)){
-                isInStock = false;
-                return;
+        for (const [produitId, stock] of menu.produitsId) {
+            isInStock = await VerifyValueController.isProduitInStock(produitId,stock);
+            if(!isInStock){
+                break;
             }
-            if(isInStock) menusInStock.push(element);
-        })
-    });
-    res.status(200).json({
-        menus : menusInStock
-    })
+        }
+        if(isInStock){
+            menusInStock.push(menu);
+        } 
+        if(menuProcessed === menus.length){
+            res.status(200).json({
+                menus : menusInStock
+            })
+        }
+    }) 
 })
 router.get('/produits',async(req,res)=>{
     const produits = await CommandeController.getProduits();
@@ -57,18 +64,21 @@ router.get('/produits',async(req,res)=>{
 router.get('/promotions',async(req,res)=>{
 
 })
-router.get('/panier',async(req,res)=>{
+router.get('/panier',PanierMiddleWare.logPanier(CommandeController.panier),async(req,res)=>{
+    console.log('pass',req.panierId)
     res.status(200).json({
-        panier : CommandeController.panier
+        panier : CommandeController.panier[req.panierId],
+        idPanier : req.panierId
     })
 })
 //Ajouter Panier
-router.post('/produit',async(req,res)=>{
+router.post('/produits',PanierMiddleWare.logPanier(CommandeController.panier),async(req,res)=>{
     const produit = await CommandeController.getProduit(req.body.id);
-    if(produit){
-        CommandeController.addProduitToPanier(req.body.id);
+    if(produit && produit.stock > 0){
+        await CommandeController.addProduitToPanier(req.body.id,req.panierId);
         res.status(200).json({
-            panier : CommandeController.panier
+            panier : CommandeController.panier[req.panierId],
+            idPanier : req.panierId
         })
     }
     else{
@@ -77,30 +87,53 @@ router.post('/produit',async(req,res)=>{
         })
     }
 })
-router.delete('/produit',async(req,res)=>{
-    await CommandeController.delProduitToPanier(req.body.id,req.body.count);
+router.delete('/produits',PanierMiddleWare.logPanier(CommandeController.panier),async(req,res)=>{
+    await CommandeController.delProduitToPanier(req.body.id,req.body.count,req.panierId);
     res.status(200).json({
-        panier : CommandeController.panier
+        panier : CommandeController.panier[req.panierId],
+        idPanier : req.panierId
     })
 })
-router.post('/menu',async(req,res)=>{
+router.post('/menus',PanierMiddleWare.logPanier(CommandeController.panier),async(req,res)=>{
     const menu = await CommandeController.getMenu(req.body.id);
     if(menu){
-        CommandeController.addMenutoPanier(req.body.id);
-        res.status(200).json({
-            panier : CommandeController.panier
-        })
+        let isInStock = true;
+        for (const [produitId, stock] of menu.produitsId) {
+            isInStock = await VerifyValueController.isProduitInStock(produitId,stock);
+            if(!isInStock) {
+                res.status(400).json({
+                    message : "Produit non disponible"
+                });
+            }
+        }
+        if(isInStock){
+            for (const [produitId, stock] of menu.produitsId) {
+                const produitInStock = await CommandeController.getProduit(produitId);
+                produitInStock.stock -= stock;
+                produitInStock.save(function(err){
+                    if(err) throw err;
+                })
+            }
+    
+            await CommandeController.addMenutoPanier(req.body.id,req.panierId);
+            res.status(200).json({
+                panier : CommandeController.panier[req.panierId],
+                idPanier : req.panierId
+            })
+        }
+        
     }
     else{
         res.status(400).json({
-            message : "menu introuvable"
+            message : "Produit introuvable"
         })
     }
 })
-router.delete('/menu',async(req,res)=>{
-    await CommandeController.delMenuToPanier(req.body.id,req.body.count);
+router.delete('/menus',PanierMiddleWare.logPanier(CommandeController.panier),async(req,res)=>{
+    await CommandeController.delMenuToPanier(req.body.id,req.body.count,req.panierId);
     res.status(200).json({
-        panier : CommandeController.panier
+        panier : CommandeController.panier[req.panierId],
+        idPanier : req.panierId
     })
 })
 
