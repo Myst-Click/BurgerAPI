@@ -1,6 +1,7 @@
 const Command = require('../models/commande');
 const Produits = require('../models/produits');
 const Menu = require('../models/menu');
+const UserController = require('../controllers/user.controller')
 var mongoose = require('mongoose')
 const VerifyValueController = require('../controllers/verifyValue.controller')
 
@@ -9,12 +10,22 @@ class CommandeController{
         this.id = 0;
         this.panier = new Map();
     }
+    async createCommande(panierId){
+        var command = new Command({
+            menusId : Object.entries(this.panier[panierId].menusId),
+            produitsId : Object.entries(this.panier[panierId].produitsId),
+            idUser : this.panier[panierId].user
+        })
+
+        command.save(function(err){
+            if(err) throw err;
+        })
+    }
     async createPanier(){
         this.panier[this.id] = new Object();
         this.panier[this.id].menusId = new Map();
         this.panier[this.id].produitsId = new Map();
         this.panier[this.id].user = String;
-        this.panier[this.id].isDone = false;
         
         this.id ++;
         return (this.id - 1);
@@ -89,10 +100,25 @@ class CommandeController{
             isDone : true
         })
     }
-    isTrue(){
-        return true;
+    async checkout(panierId,user){
+        const panier = this.panier[panierId];
+        panier.user = user._id;
+        var bill = 0;
+        for(let menuId of Object.keys(panier.menusId)){
+            const menu = await this.getMenu(menuId)
+            bill += menu.prix * panier.menusId[menuId];
+        }
+        for(let produitId of Object.keys(panier.produitsId)){
+            const produit = await this.getProduit(produitId)
+            bill += produit.prix * panier.produitsId[produitId];
+        }
+        const succes = await UserController.checkout(bill,user);
+        if(succes !="Commande non validée"){
+            this.createCommande(panierId);
+            return succes;
+        }
+        return succes;
     }
-
     async getMenus(){
         return await Menu.find();
     }

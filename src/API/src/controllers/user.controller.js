@@ -24,6 +24,27 @@ class UserController{
 
         return newUser;
     }
+    async checkout(monnaie,user){
+        console.log(user);
+        console.log(monnaie,user.monnaie)
+        if(user.monnaie < monnaie) return "Commande non validée";
+        else{
+            user.monnaie -= monnaie;
+            user.save(function(err){
+                if(err) return "Commande non validée";
+            });
+            return "Commande validée";
+        }
+    }
+    async setMonnaie(monnaie,idUser){
+        var user = await this.getById(idUser);
+        console.log(user)
+        user.monnaie += monnaie;
+        user.save(function(err){
+            if(err) return false;
+        });
+        return true;
+    }
     async login(email, password) {
         const user = await User.findOne({
             email : email
@@ -61,7 +82,7 @@ class UserController{
     }
    
     async getById(id){
-        return  User.findOne({
+        return  await User.findOne({
             _id : id
         });
     };
