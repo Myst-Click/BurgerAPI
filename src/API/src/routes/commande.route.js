@@ -1,6 +1,7 @@
 'use strict'
 const AuthMiddleWare = require('../middlewares/auth.middleware');
 const PanierMiddleWare = require('../middlewares/panier.middleware');
+const UserController = require('../controllers/user.controller')
 const CommandeController = require('../controllers').CommandeController;
 const VerifyValueController = require('../controllers').VerifyValueController;
 var express = require('express');
@@ -65,7 +66,6 @@ router.get('/promotions',async(req,res)=>{
 
 })
 router.get('/panier',PanierMiddleWare.logPanier(CommandeController.panier),async(req,res)=>{
-    console.log('pass',req.panierId)
     res.status(200).json({
         panier : CommandeController.panier[req.panierId],
         idPanier : req.panierId
@@ -135,6 +135,22 @@ router.delete('/menus',PanierMiddleWare.logPanier(CommandeController.panier),asy
         panier : CommandeController.panier[req.panierId],
         idPanier : req.panierId
     })
+})
+router.post('/checkout',AuthMiddleWare.auth(),PanierMiddleWare.logPanier(CommandeController.panier),async(req,res)=>{
+    const user = await UserController.getById(req.user._id);
+    const idUser = req.user._id;
+    const panierId = req.panierId;
+    const checkout = await CommandeController.checkout(panierId,user);
+    if(checkout != "Commande non validée"){
+        res.status(200).json({
+            message : checkout
+        })
+    }
+    else{
+        res.status(400).json({
+            message :"checkout"
+        })
+    }
 })
 
 module.exports = router;

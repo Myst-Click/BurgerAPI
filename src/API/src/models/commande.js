@@ -5,12 +5,12 @@ var Schema = mongoose.Schema;
 // set up a mongoose model and pass it using module.exports
 module.exports = mongoose.model('Commande', new Schema({
     menusId:{
-        id : String,
-        count : Number
+        type : Map,
+        required : true
     },
     produitsId:{
-        id : String,
-        count : Number
+        type : Map,
+        required : true
     },
     idUser:{ 
         type : String,
@@ -18,7 +18,7 @@ module.exports = mongoose.model('Commande', new Schema({
     },
     isDone:{
         type : Boolean,
-        required : true,
+        default : false,
     }
     
 }));
