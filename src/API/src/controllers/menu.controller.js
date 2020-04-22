@@ -72,4 +72,4 @@ class MenuController{
         })
     }
 }
-module.exports = new CommandeController();
+module.exports = new MenuController();

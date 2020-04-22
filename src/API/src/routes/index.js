@@ -6,6 +6,7 @@ class RouterBuilder {
         app.use('/commandes',require('./commande.route'));
         app.use('/produits', require('./produits.route'));
         app.use('/admin', require('./admin.route'));
+        app.use('/preparateur', require('./preparateur.route'));
     }
 }
 

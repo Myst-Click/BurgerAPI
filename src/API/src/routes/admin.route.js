@@ -12,7 +12,28 @@ router.use(bodyParser.json());
 
 
 
-//Produits
+/**
+ * @swagger
+ * /Admin:
+ *    get:
+ *      tags:
+ *          - Admin
+ *      summary: Permet de récupérer tous les produits.
+ *      description: Récupération de tous les produits quelque soit le statut.
+ *      consumes:
+ *        - application/json
+ *      parameters:
+ *        - name: body
+ *          in: body
+ *          schema:
+ *            type: object
+ *            properties:
+ *              id:
+ *                type: number
+ *      responses:
+ *        200:
+ *          description: Liste des produits.
+ */
 router.get('/produits/',AuthMiddleWare.auth(),async(req,res)=>{
     const produits = ProduitsController.getProduits(req.body.id)
     res.status(200).json({
@@ -33,7 +54,7 @@ router.post('/produits/',AuthMiddleWare.auth(),async(req,res)=>{
     }
     else{
         res.status(400).json({
-            message : `Le produit existe déjà et son id est : ${exists._id}`;
+            message : `Le produit existe déjà et son id est : ${exists._id}`
         })
     }
 })
@@ -48,7 +69,7 @@ router.get('/produits/stock', AuthMiddleWare.auth(), async(req, res)=>{
 router.put('/produits/stock', AuthMiddleWare.auth(), async(req, res)=>{
   const stock = ProduitsController.addtoStock(req.body.id, req.body.count);
   res.status(200).json({
-      message : `Le stock a bien été mis à jour pour ce produit.`;
+      message : `Le stock a bien été mis à jour pour ce produit.`
   })
 })
 
@@ -56,9 +77,9 @@ router.put('/produits/stock', AuthMiddleWare.auth(), async(req, res)=>{
 //menus
 
 router.put('/menu/price', AuthMiddleWare.auth(), async(req, res)=>{
-  const stock = MenuController.changePrice(req.body.id, req.body.price);
+  const price = MenuController.changePrice(req.body.id, req.body.price);
   res.status(200).json({
-      message : `Le stock a bien été mis à jour pour ce produit.`;
+      message : `Le prix a bien été modifié.`
   })
 })
 
@@ -66,7 +87,7 @@ router.post('/menu',AuthMiddleWare.auth(),async(req,res)=>{
     const exists = await Menu.getProduits(req.body.id);
     if(!exists){
         var menu = await MenuController.createMenu(req.params.name,
-                                                   req.params.price
+                                                   req.params.price,
                                                    req.params.promotion);
         res.status(200).json({
             menu : menu
@@ -74,7 +95,7 @@ router.post('/menu',AuthMiddleWare.auth(),async(req,res)=>{
     }
     else{
         res.status(400).json({
-            message : `Le menu existe déjà et son id est : ${exists._id}`;
+            message : `Le menu existe déjà et son id est : ${exists._id}`
         })
     }
 })
@@ -82,7 +103,7 @@ router.post('/menu',AuthMiddleWare.auth(),async(req,res)=>{
 router.put('/menu/promotion', AuthMiddleWare.auth(), async(req, res)=>{
   const price = MenuController.addPromotion(req.body.id, req.body.promotion);
   res.status(200).json({
-      message : `La promotion a bien été ajoutée.`;
+      message : `La promotion a bien été ajoutée.`
   })
 })
 

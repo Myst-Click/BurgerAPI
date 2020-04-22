@@ -3,6 +3,7 @@ const AuthMiddleWare = require('../middlewares/auth.middleware');
 const PanierMiddleWare = require('../middlewares/panier.middleware');
 const CommandeController = require('../controllers').CommandeController;
 const VerifyValueController = require('../controllers').VerifyValueController;
+const MenuController = require('../controllers').MenuController;
 var express = require('express');
 var bodyParser = require('body-parser');
 var router = express.Router();
@@ -16,21 +17,21 @@ router.get('/',AuthMiddleWare.auth(),async(req,res)=>{
     const commandes = CommandeController.getCommandes(req.user._id)
     res.status(200).json({
         commandes : commandes
-    }) 
+    })
 })
 // Get Working Commandes
 router.get('/inprogress',AuthMiddleWare.auth(),async(req,res)=>{
     const commandes = CommandeController.getCommandesInProgress(req.user._id)
     res.status(200).json({
         commandes : commandes
-    }) 
+    })
 })
 // Get Done Commandes
 router.get('/done',AuthMiddleWare.auth(),async(req,res)=>{
     const commandes = CommandeController.getCommandesDone(req.user._id)
     res.status(200).json({
         commandes : commandes
-    }) 
+    })
 })
 router.get('/menus',async(req,res)=>{
     const menus = await CommandeController.getMenus();
@@ -47,13 +48,13 @@ router.get('/menus',async(req,res)=>{
         }
         if(isInStock){
             menusInStock.push(menu);
-        } 
+        }
         if(menuProcessed === menus.length){
             res.status(200).json({
                 menus : menusInStock
             })
         }
-    }) 
+    })
 })
 router.get('/produits',async(req,res)=>{
     const produits = await CommandeController.getProduits();
@@ -62,7 +63,10 @@ router.get('/produits',async(req,res)=>{
     })
 })
 router.get('/promotions',async(req,res)=>{
-
+    const menu = await MenuController.getMenusWithPromo();
+    res.status(200).json({
+        menu : menu
+    })
 })
 router.get('/panier',PanierMiddleWare.logPanier(CommandeController.panier),async(req,res)=>{
     console.log('pass',req.panierId)
@@ -114,14 +118,14 @@ router.post('/menus',PanierMiddleWare.logPanier(CommandeController.panier),async
                     if(err) throw err;
                 })
             }
-    
+
             await CommandeController.addMenutoPanier(req.body.id,req.panierId);
             res.status(200).json({
                 panier : CommandeController.panier[req.panierId],
                 idPanier : req.panierId
             })
         }
-        
+
     }
     else{
         res.status(400).json({

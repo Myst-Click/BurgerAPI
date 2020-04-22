@@ -34,7 +34,7 @@ router.post('/',AuthMiddleWare.auth(),async(req,res)=>{
     }
     else{
         res.status(400).json({
-            message : `Le produit existe déjà et son id est : ${exists._id}`;
+            message : `Le produit existe déjà et son id est : ${exists._id}`
         })
     }
 })
@@ -49,7 +49,7 @@ router.get('/stock', AuthMiddleWare.auth(), async(req, res)=>{
 router.put('/stock', AuthMiddleWare.auth(), async(req, res)=>{
   const stock = ProduitsController.addtoStock(req.body._id, req.body.count);
   res.status(200).json({
-      message : `Le stock a bien été mis à jour pour ce produit.`;
+      message : `Le stock a bien été mis à jour pour ce produit.`
   })
 })
 
